@@ -29,7 +29,12 @@ class MA12070P : DACDriver
         i2s.set_pins(self.get_i2s_pins())
 
         # Ensures we expand from 16 to 32 bit, to match MA12070P Clock system.
+        # Debug for adau1701
         i2s.expand(16, 32)
+
+        # External i2s data for Amplifier (i2s Mux enabled)
+        gpio.pin_mode(32, gpio.OUTPUT)
+        gpio.digital_write(32, gpio.HIGH)
 
         # Start I2C Driver
         i2c.install(self.get_gpio('sda'), self.get_gpio('scl'))
@@ -43,14 +48,22 @@ class MA12070P : DACDriver
         gpio.digital_write(self.get_gpio('enablePin'), gpio.LOW)
 
         # Set Amp to Left-justified format
-        i2c.write(self.ma_addr, 53, 8)
+        i2c.write(self.ma_addr, 53, 0) # Changed form 8
+        i2c.write(0x21, 53, 0)
+        i2c.write(0x22, 53, 0)
 
         # Set Volume to a safe level..
         i2c.write(self.ma_addr, 64, 100)
+        i2c.write(0x21, 64, 100)
+        i2c.write(0x22, 64, 100)
 
         # Clear static error register.
         i2c.write(self.ma_addr, 45, 0x34)
         i2c.write(self.ma_addr, 45, 0x30)
+        i2c.write(0x21, 45, 0x34)
+        i2c.write(0x21, 45, 0x30)
+        i2c.write(0x22, 45, 0x34)
+        i2c.write(0x22, 45, 0x30)
 
         # Init done.
 
@@ -70,6 +83,8 @@ class MA12070P : DACDriver
         var volume_index = int(((volume / 100.0) * (volume_table.size() - 1)) + 0.5)
         
         i2c.write(self.ma_addr, 64, volume_table[volume_index])
+        i2c.write(0x21, 64, volume_table[volume_index])
+        i2c.write(0x22, 64, volume_table[volume_index])
 
 
     end
