@@ -14,7 +14,7 @@ jobs:
           nix_path: nixpkgs=channel:nixos-22.11
       - run: nix build '.?submodules=1#app-esp32'
 
-      - run: zip esp_output.zip result
+      - run: zip esp_output.zip result/*
       - name: Archive binary
         uses: actions/upload-artifact@v3
         with:
